@@ -6,5 +6,5 @@ cert_key = "cert.key"
 is_local = True
 host = "0.0.0.0" # Ignored when is_local = True
 db_name = "chat.db"
-db_hash_type = "pbkdf2_hmac" # bcrypt or pbkdf2_hmac
+db_hash_type = "bcrypt" # bcrypt or pbkdf2_hmac
 pbkdf2_hmac_global_salt = b"JP=ds=9akkeizgfiopseaa223432fsd2026"

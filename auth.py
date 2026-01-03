@@ -19,8 +19,11 @@ def hash_password(password: str, username: str) -> str:
         #print(pwd_hash_str_base64)
         return pwd_hash_str_base64
     elif db_hash_type == "bcrypt":
-        print("BCRYPT NOT SUPPORTED!")
-        return None
+        password_bytes = password.encode('utf-8')
+        pwd_hash_bytes = bcrypt.hashpw(password_bytes, bcrypt.gensalt())
+        pwd_hash_bytes_base64 = base64.b64encode(pwd_hash_bytes)
+        pwd_hash_str_base64 = pwd_hash_bytes_base64.decode('utf-8')
+        return pwd_hash_str_base64
     else:
         print("Invalid db_hash_type!")
 
