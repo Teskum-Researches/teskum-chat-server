@@ -19,7 +19,7 @@ async def echo(websocket):
             if cmd == "list":
                 with ChatDB() as db:
                     messages = db.get_messages()
-                await websocket.send(json.dumps({"messages": messages}))
+                await websocket.send(json.dumps({"messages": messages, "status":"OK"}))
 
             elif cmd == "send":
                 session = data.get("session")
