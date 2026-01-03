@@ -28,14 +28,17 @@ def hash_password(password: str, username: str) -> str:
         print("Invalid db_hash_type!")
 
 def check_password(password: str, username: str) -> bool:
-    usr_pass = hash_password(password=password,username=username)
     with ChatDB() as db:
         db_pass = db.get_user(username=username)[2]
-
-    if usr_pass == db_pass:
-        return True
-    else:
-        return False
+    if db_hash_type == "pbkdf2":
+        usr_pass = hash_password(password=password,username=username)
+        if usr_pass == db_pass:
+            return True
+        else:
+            return False
+    elif db_hash_type == "bcrypt":
+        db_pass = base64.b64decode(db_pass)
+        return bcrypt.checkpw(password.encode('utf-8'), db_pass)
 
 def check_session(session:str):
     if sessions[session]:
