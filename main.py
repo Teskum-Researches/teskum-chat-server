@@ -3,18 +3,45 @@ import asyncio
 import websockets
 import ssl
 import json
-from config import port, is_local, host, is_secure, cert_file, cert_key
+from config import (
+    port,
+    is_local,
+    host,
+    is_secure,
+    cert_file,
+    cert_key,
+    require_secure_transport_for_sensitive_commands,
+)
 from db import ChatDB
 from auth import login, check_session, hash_password
 
 with ChatDB() as db:
     messages = db.get_messages()
 
+
+def _is_secure_connection(websocket) -> bool:
+    return bool(getattr(websocket, "secure", False))
+
+
+def _is_sensitive_command(cmd: str) -> bool:
+    return cmd in {"login", "register", "send"}
+
 async def echo(websocket):
     async for raw_message in websocket:
         try:
             data = json.loads(raw_message)
             cmd = data.get("cmd")
+
+            if (
+                require_secure_transport_for_sensitive_commands
+                and _is_sensitive_command(cmd)
+                and not _is_secure_connection(websocket)
+            ):
+                await websocket.send(json.dumps({
+                    "status": "ERROR",
+                    "error": "Sensitive commands require secure WebSocket (wss://).",
+                }))
+                continue
 
             if cmd == "list":
                 with ChatDB() as db:
